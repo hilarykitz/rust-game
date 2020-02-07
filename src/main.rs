@@ -14,8 +14,7 @@ fn main() {
                     println!("{}\n", response);
                 },
                 Err(error) => {
-                    dbg!(error);
-                    ()
+                    println!("{}\n", error);
                 }
             }
         }
