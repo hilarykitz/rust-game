@@ -9,9 +9,7 @@ fn main() {
             println!("Something went wrong: {}", error);
         } else {
             match game::parse_instruction(&instruction[..]) {
-                Ok(game::Instruction::Look) => println!("You look around and see a book"),
-                Ok(game::Instruction::Eat(game::Entity::Book)) =>
-                    println!("The book tastes like sweeties and you absorb the knowledge within"),
+                Ok(instruction) => game::do_instruction(&instruction),
                 Err(error) => println!("{}", error),
             }
         }

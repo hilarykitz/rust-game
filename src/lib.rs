@@ -35,4 +35,12 @@ pub mod game {
 
         Err("I don't understand")
     }
+
+    pub fn do_instruction(instruction: &Instruction) {
+        match instruction {
+            Instruction::Look => println!("You look around and see a book"),
+            Instruction::Eat(Entity::Book) =>
+                println!("The book tastes like sweeties and you absorb the knowledge within"),
+        }
+    }
 }
