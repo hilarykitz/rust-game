@@ -1,8 +1,32 @@
 pub mod game {
     #[derive(Debug,PartialEq)]
-    pub enum Entity {
+    enum EntityIdent {
         Book,
         Sandwich,
+    }
+
+    impl EntityIdent {
+        fn from_str(string: &str) -> Option<EntityIdent> {
+            match string {
+                "book" => Some(EntityIdent::Book),
+                "sandwich" => Some(EntityIdent::Sandwich),
+                _ => None,
+            }
+        }
+    }
+
+    #[derive(Debug,PartialEq)]
+    pub struct Entity {
+        ident: EntityIdent,
+    }
+
+    impl Entity {
+        pub fn from_str(string: &str) -> Option<Entity> {
+            match EntityIdent::from_str(string) {
+                Some(ident) => Some(Entity { ident }),
+                None => None,
+            }
+        }
     }
 
     #[derive(Debug,PartialEq)]
@@ -10,16 +34,6 @@ pub mod game {
         Look,
         Describe(Option<Entity>),
         Consume(Option<Entity>),
-    }
-
-    impl Entity {
-        fn from(string: &str) -> Option<Entity> {
-            match string {
-                "book" => Some(Entity::Book),
-                "sandwich" => Some(Entity::Sandwich),
-                _ => None,
-            }
-        }
     }
 
     pub fn parse_instruction(instruction: &str) -> Result<Instruction, &str> {
@@ -31,21 +45,13 @@ pub mod game {
                 if tokens.len() == 1 {
                     return Ok(Instruction::Look);
                 }
-                if tokens.len() > 2 && tokens[1] == "at" {
-                    return match Entity::from(tokens[2]) {
-                        Some(entity) => Ok(Instruction::Describe(Some(entity))),
-                        None => Ok(Instruction::Describe(None)),
-                    }
+                if tokens.len() == 3 && tokens[1] == "at" {
+                    return Ok(Instruction::Describe(Entity::from_str(tokens[2])));
                 }
             } else if tokens[0] == "eat" {
                 if tokens.len() > 1 {
-                    return match Entity::from(tokens[1]) {
-                        Some(entity) => Ok(Instruction::Consume(Some(entity))),
-                        None => Ok(Instruction::Consume(None)),
-                    }
+                    return Ok(Instruction::Consume(Entity::from_str(tokens[1])));
                 }
-
-                return Ok(Instruction::Consume(None));
             }
         }
 
@@ -55,11 +61,15 @@ pub mod game {
     pub fn get_instruction_response(instruction: &Instruction) -> &str {
         match instruction {
             Instruction::Look => "You look around and see a book and a sandwich",
-            Instruction::Describe(Some(Entity::Book)) => "It's a book",
-            Instruction::Describe(Some(Entity::Sandwich)) => "It's a sandwich",
+            Instruction::Describe(Some(entity)) => match entity {
+                Entity { ident: EntityIdent::Book } => "It's a book",
+                Entity { ident: EntityIdent::Sandwich } => "It's a sandwich",
+            },
             Instruction::Describe(None) => "You can't see it",
-            Instruction::Consume(Some(Entity::Sandwich)) => "The sandwich tastes great and you eat the whole thing",
-            Instruction::Consume(Some(Entity::Book)) => "The book tastes like sweeties and you absorb the knowledge within",
+            Instruction::Consume(Some(entity)) => match entity {
+                Entity { ident: EntityIdent::Sandwich } => "The sandwich tastes great and you eat the whole thing",
+                Entity { ident: EntityIdent::Book } => "The book tastes like sweeties and you absorb the knowledge within",
+            },
             Instruction::Consume(None) => "You don't have anything to eat"
         }
     }
@@ -70,38 +80,44 @@ mod tests {
     use super::game::*;
 
     #[test]
-    fn it_parses_look() -> Result<(), String> {
-        let instruction = parse_instruction("look")?;
-        assert_eq!(instruction, Instruction::Look);
-
-        Ok(())
+    fn it_parses_bad_input() {
+        assert_eq!(parse_instruction(""), Err("I don't understand"));
+        assert_eq!(parse_instruction("dance"), Err("I don't understand"));
     }
 
     #[test]
-    fn it_parses_look_at() -> Result<(), String> {
+    fn it_parses_look() {
+        let instruction = parse_instruction("look").unwrap();
+        assert_eq!(instruction, Instruction::Look);
+    }
+
+    #[test]
+    fn it_parses_look_at() {
         let instruction = parse_instruction("look at");
         assert_eq!(instruction, Err("I don't understand"));
 
-        let instruction = parse_instruction("look at book")?;
-        assert_eq!(instruction, Instruction::Describe(Some(Entity::Book)));
+        let instruction = parse_instruction("look at book").unwrap();
+        assert_eq!(instruction, Instruction::Describe(Entity::from_str("book")));
 
-        let instruction = parse_instruction("look at sandwich")?;
-        assert_eq!(instruction, Instruction::Describe(Some(Entity::Sandwich)));
+        let instruction = parse_instruction("look at sandwich").unwrap();
+        assert_eq!(instruction, Instruction::Describe(Entity::from_str("sandwich")));
 
-        Ok(())
+        let instruction = parse_instruction("look at dolphin").unwrap();
+        assert_eq!(instruction, Instruction::Describe(None));
     }
 
     #[test]
-    fn it_parses_eat() -> Result<(), String> {
-        let instruction = parse_instruction("eat")?;
+    fn it_parses_eat() {
+        let instruction = parse_instruction("eat");
+        assert_eq!(instruction, Err("I don't understand"));
+
+        let instruction = parse_instruction("eat book").unwrap();
+        assert_eq!(instruction, Instruction::Consume(Entity::from_str("book")));
+
+        let instruction = parse_instruction("eat sandwich").unwrap();
+        assert_eq!(instruction, Instruction::Consume(Entity::from_str("sandwich")));
+
+        let instruction = parse_instruction("eat dolphin").unwrap();
         assert_eq!(instruction, Instruction::Consume(None));
-
-        let instruction = parse_instruction("eat book")?;
-        assert_eq!(instruction, Instruction::Consume(Some(Entity::Book)));
-
-        let instruction = parse_instruction("eat sandwich")?;
-        assert_eq!(instruction, Instruction::Consume(Some(Entity::Sandwich)));
-
-        Ok(())
     }
 }
