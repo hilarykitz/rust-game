@@ -1,9 +1,11 @@
 pub mod game {
+    #[derive(Debug,PartialEq)]
     pub enum Entity {
         Book,
         Sandwich,
     }
 
+    #[derive(Debug,PartialEq)]
     pub enum Instruction {
         Look,
         Describe(Option<Entity>),
@@ -60,5 +62,46 @@ pub mod game {
             Instruction::Consume(Some(Entity::Book)) => "The book tastes like sweeties and you absorb the knowledge within",
             Instruction::Consume(None) => "You don't have anything to eat"
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::game::*;
+
+    #[test]
+    fn it_parses_look() -> Result<(), String> {
+        let instruction = parse_instruction("look")?;
+        assert_eq!(instruction, Instruction::Look);
+
+        Ok(())
+    }
+
+    #[test]
+    fn it_parses_look_at() -> Result<(), String> {
+        let instruction = parse_instruction("look at");
+        assert_eq!(instruction, Err("I don't understand"));
+
+        let instruction = parse_instruction("look at book")?;
+        assert_eq!(instruction, Instruction::Describe(Some(Entity::Book)));
+
+        let instruction = parse_instruction("look at sandwich")?;
+        assert_eq!(instruction, Instruction::Describe(Some(Entity::Sandwich)));
+
+        Ok(())
+    }
+
+    #[test]
+    fn it_parses_eat() -> Result<(), String> {
+        let instruction = parse_instruction("eat")?;
+        assert_eq!(instruction, Instruction::Consume(None));
+
+        let instruction = parse_instruction("eat book")?;
+        assert_eq!(instruction, Instruction::Consume(Some(Entity::Book)));
+
+        let instruction = parse_instruction("eat sandwich")?;
+        assert_eq!(instruction, Instruction::Consume(Some(Entity::Sandwich)));
+
+        Ok(())
     }
 }
