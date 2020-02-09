@@ -1,15 +1,15 @@
 mod parser {
     #[derive(Debug,PartialEq)]
     pub enum EntityIdent {
+        Apple,
         Book,
-        Sandwich,
     }
 
     impl EntityIdent {
         pub fn from_str(string: &str) -> Option<EntityIdent> {
             match string {
+                "apple" => Some(EntityIdent::Apple),
                 "book" => Some(EntityIdent::Book),
-                "sandwich" => Some(EntityIdent::Sandwich),
                 _ => None,
             }
         }
@@ -20,6 +20,7 @@ mod parser {
         Look,
         Describe(Option<EntityIdent>),
         Consume(Option<EntityIdent>),
+        Read(Option<EntityIdent>),
     }
 
     pub fn parse_instruction(instruction: String) -> Result<Instruction, &'static str> {
@@ -37,6 +38,10 @@ mod parser {
             } else if tokens[0] == "eat" {
                 if tokens.len() > 1 {
                     return Ok(Instruction::Consume(EntityIdent::from_str(tokens[1])));
+                }
+            } else if tokens[0] == "read" {
+                if tokens.len() > 1 {
+                    return Ok(Instruction::Read(EntityIdent::from_str(tokens[1])));
                 }
             }
         }
@@ -75,7 +80,7 @@ pub mod game {
     impl Entity for Apple {
         fn describe(&self) -> String {
             if !self.eaten {
-                String::from("It's a perfect red apple")
+                String::from("It's a tempting red apple")
             } else {
                 String::from("It's an apple core")
             }
@@ -117,16 +122,23 @@ pub mod game {
     }
 
     pub struct Scene {
-        _entities: Vec<Box<dyn Entity>>
+        entities: Vec<Box<dyn Entity>>
     }
 
     impl Scene {
         pub fn new() -> Scene {
             Scene {
-                _entities: vec![
+                entities: vec![
                     Box::new(Apple::new()),
                     Box::new(Book::new(String::from("The Lusty Argonian Maid"), String::from("Crassius Curio"), String::from("[contents here]"))),
                 ]
+            }
+        }
+
+        fn find_entity(&self, ident: &parser::EntityIdent) -> &Box<dyn Entity> {
+            match ident {
+                parser::EntityIdent::Apple => &self.entities[0],
+                parser::EntityIdent::Book => &self.entities[1],
             }
         }
 
@@ -134,17 +146,25 @@ pub mod game {
             match parser::parse_instruction(instruction) {
                 Ok(instruction) => {
                     let response = match instruction {
-                        parser::Instruction::Look => "You look around and see a book and a sandwich",
-                        parser::Instruction::Describe(Some(entity)) => match entity {
-                            parser::EntityIdent::Book => "It's a book",
-                            parser::EntityIdent::Sandwich => "It's a sandwich",
+                        parser::Instruction::Look => String::from("You look around and see an apple and a book"),
+                        parser::Instruction::Describe(Some(ident)) => self.find_entity(&ident).describe(),
+                        parser::Instruction::Describe(None) => String::from("You can't see that"),
+                        parser::Instruction::Consume(Some(ident)) => {
+                            let result = self.find_entity(&ident).consume();
+                            match result {
+                                Ok(response) => response,
+                                Err(error) => format!("{}, so you decide not to eat it", error),
+                            }
                         },
-                        parser::Instruction::Describe(None) => "You can't see it",
-                        parser::Instruction::Consume(Some(entity)) => match entity {
-                            parser::EntityIdent::Sandwich => "The sandwich tastes great and you eat the whole thing",
-                            parser::EntityIdent::Book => "The book tastes like sweeties and you absorb the knowledge within",
+                        parser::Instruction::Consume(None) => String::from("You can't find that"),
+                        parser::Instruction::Read(Some(ident)) => {
+                            let result = self.find_entity(&ident).read();
+                            match result {
+                                Ok(response) => response,
+                                Err(error) => format!("{}", error),
+                            }
                         },
-                        parser::Instruction::Consume(None) => "You can't find that"
+                        parser::Instruction::Read(None) => String::from("You can't find that"),
                     };
                     println!("{}\n", response);
                 },
@@ -180,9 +200,6 @@ mod tests {
         let instruction = parse_instruction(String::from("look at book")).unwrap();
         assert_eq!(instruction, Instruction::Describe(EntityIdent::from_str("book")));
 
-        let instruction = parse_instruction(String::from("look at sandwich")).unwrap();
-        assert_eq!(instruction, Instruction::Describe(EntityIdent::from_str("sandwich")));
-
         let instruction = parse_instruction(String::from("look at dolphin")).unwrap();
         assert_eq!(instruction, Instruction::Describe(None));
     }
@@ -194,9 +211,6 @@ mod tests {
 
         let instruction = parse_instruction(String::from("eat book")).unwrap();
         assert_eq!(instruction, Instruction::Consume(EntityIdent::from_str("book")));
-
-        let instruction = parse_instruction(String::from("eat sandwich")).unwrap();
-        assert_eq!(instruction, Instruction::Consume(EntityIdent::from_str("sandwich")));
 
         let instruction = parse_instruction(String::from("eat dolphin")).unwrap();
         assert_eq!(instruction, Instruction::Consume(None));
