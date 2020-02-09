@@ -1,12 +1,12 @@
 pub mod game {
     #[derive(Debug,PartialEq)]
-    enum EntityIdent {
+    pub enum EntityIdent {
         Book,
         Sandwich,
     }
 
     impl EntityIdent {
-        fn from_str(string: &str) -> Option<EntityIdent> {
+        pub fn from_str(string: &str) -> Option<EntityIdent> {
             match string {
                 "book" => Some(EntityIdent::Book),
                 "sandwich" => Some(EntityIdent::Sandwich),
@@ -32,8 +32,8 @@ pub mod game {
     #[derive(Debug,PartialEq)]
     pub enum Instruction {
         Look,
-        Describe(Option<Entity>),
-        Consume(Option<Entity>),
+        Describe(Option<EntityIdent>),
+        Consume(Option<EntityIdent>),
     }
 
     pub fn parse_instruction(instruction: &str) -> Result<Instruction, &str> {
@@ -46,11 +46,11 @@ pub mod game {
                     return Ok(Instruction::Look);
                 }
                 if tokens.len() == 3 && tokens[1] == "at" {
-                    return Ok(Instruction::Describe(Entity::from_str(tokens[2])));
+                    return Ok(Instruction::Describe(EntityIdent::from_str(tokens[2])));
                 }
             } else if tokens[0] == "eat" {
                 if tokens.len() > 1 {
-                    return Ok(Instruction::Consume(Entity::from_str(tokens[1])));
+                    return Ok(Instruction::Consume(EntityIdent::from_str(tokens[1])));
                 }
             }
         }
@@ -62,15 +62,15 @@ pub mod game {
         match instruction {
             Instruction::Look => "You look around and see a book and a sandwich",
             Instruction::Describe(Some(entity)) => match entity {
-                Entity { ident: EntityIdent::Book } => "It's a book",
-                Entity { ident: EntityIdent::Sandwich } => "It's a sandwich",
+                EntityIdent::Book => "It's a book",
+                EntityIdent::Sandwich => "It's a sandwich",
             },
             Instruction::Describe(None) => "You can't see it",
             Instruction::Consume(Some(entity)) => match entity {
-                Entity { ident: EntityIdent::Sandwich } => "The sandwich tastes great and you eat the whole thing",
-                Entity { ident: EntityIdent::Book } => "The book tastes like sweeties and you absorb the knowledge within",
+                EntityIdent::Sandwich => "The sandwich tastes great and you eat the whole thing",
+                EntityIdent::Book => "The book tastes like sweeties and you absorb the knowledge within",
             },
-            Instruction::Consume(None) => "You don't have anything to eat"
+            Instruction::Consume(None) => "You can't find that"
         }
     }
 }
@@ -97,10 +97,10 @@ mod tests {
         assert_eq!(instruction, Err("I don't understand"));
 
         let instruction = parse_instruction("look at book").unwrap();
-        assert_eq!(instruction, Instruction::Describe(Entity::from_str("book")));
+        assert_eq!(instruction, Instruction::Describe(EntityIdent::from_str("book")));
 
         let instruction = parse_instruction("look at sandwich").unwrap();
-        assert_eq!(instruction, Instruction::Describe(Entity::from_str("sandwich")));
+        assert_eq!(instruction, Instruction::Describe(EntityIdent::from_str("sandwich")));
 
         let instruction = parse_instruction("look at dolphin").unwrap();
         assert_eq!(instruction, Instruction::Describe(None));
@@ -112,10 +112,10 @@ mod tests {
         assert_eq!(instruction, Err("I don't understand"));
 
         let instruction = parse_instruction("eat book").unwrap();
-        assert_eq!(instruction, Instruction::Consume(Entity::from_str("book")));
+        assert_eq!(instruction, Instruction::Consume(EntityIdent::from_str("book")));
 
         let instruction = parse_instruction("eat sandwich").unwrap();
-        assert_eq!(instruction, Instruction::Consume(Entity::from_str("sandwich")));
+        assert_eq!(instruction, Instruction::Consume(EntityIdent::from_str("sandwich")));
 
         let instruction = parse_instruction("eat dolphin").unwrap();
         assert_eq!(instruction, Instruction::Consume(None));
