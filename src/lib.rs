@@ -117,13 +117,13 @@ pub mod game {
     }
 
     pub struct Scene {
-        entities: Vec<Box<dyn Entity>>
+        _entities: Vec<Box<dyn Entity>>
     }
 
     impl Scene {
         pub fn new() -> Scene {
             Scene {
-                entities: vec![
+                _entities: vec![
                     Box::new(Apple::new()),
                     Box::new(Book::new(String::from("The Lusty Argonian Maid"), String::from("Crassius Curio"), String::from("[contents here]"))),
                 ]
