@@ -215,4 +215,16 @@ mod tests {
         let instruction = parse_instruction(String::from("eat dolphin")).unwrap();
         assert_eq!(instruction, Instruction::Consume(None));
     }
+
+    #[test]
+    fn it_parses_read() {
+        let instruction = parse_instruction(String::from("read"));
+        assert_eq!(instruction, Err("I don't understand"));
+
+        let instruction = parse_instruction(String::from("read book")).unwrap();
+        assert_eq!(instruction, Instruction::Read(EntityIdent::from_str("book")));
+
+        let instruction = parse_instruction(String::from("read dolphin")).unwrap();
+        assert_eq!(instruction, Instruction::Read(None));
+    }
 }
