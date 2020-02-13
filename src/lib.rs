@@ -27,33 +27,31 @@ mod parser {
         let instruction = instruction.trim();
         let tokens: Vec<&str> = instruction.split(" ").collect();
 
-        let mut result = Err("I don't understand");
-
         if tokens.len() > 0 {
             match tokens[0] {
                 "look" => {
                     if tokens.len() == 1 {
-                        result = Ok(Instruction::Look)
+                        return Ok(Instruction::Look);
                     }
                     if tokens.len() == 3 && tokens[1] == "at" {
-                        result = Ok(Instruction::Describe(EntityIdent::from_str(tokens[2])))
+                        return Ok(Instruction::Describe(EntityIdent::from_str(tokens[2])));
                     }
                 },
                 "eat" => {
                     if tokens.len() > 1 {
-                        result = Ok(Instruction::Consume(EntityIdent::from_str(tokens[1])))
+                        return Ok(Instruction::Consume(EntityIdent::from_str(tokens[1])));
                     }
                 },
                 "read" => {
                     if tokens.len() > 1 {
-                        result = Ok(Instruction::Read(EntityIdent::from_str(tokens[1])))
+                        return Ok(Instruction::Read(EntityIdent::from_str(tokens[1])));
                     }
                 },
                 _ => ()
             }
         }
 
-        result
+        Err("I don't understand")
     }
 }
 
