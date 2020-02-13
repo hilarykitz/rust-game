@@ -1,5 +1,6 @@
 #[derive(Debug,PartialEq)]
 pub enum EntityIdent {
+    NullEntity(String),
     Apple,
     Book,
 }
@@ -7,20 +8,20 @@ pub enum EntityIdent {
 #[derive(Debug,PartialEq)]
 pub enum Instruction {
     Look,
-    Describe(Option<EntityIdent>),
-    Consume(Option<EntityIdent>),
-    Read(Option<EntityIdent>),
+    Describe(EntityIdent),
+    Consume(EntityIdent),
+    Read(EntityIdent),
 }
 
 trait Entity {
     fn describe(&self) -> String;
 
     fn consume(&self) -> Result<String, &str> {
-        Err("It's not food")
+        Err("It's not food.")
     }
 
     fn read(&self) -> Result<String, &str> {
-        Err("There's nothing to read")
+        Err("There's nothing to read.")
     }
 }
 
@@ -39,17 +40,17 @@ impl Apple {
 impl Entity for Apple {
     fn describe(&self) -> String {
         if !self.eaten {
-            String::from("It's a tempting red apple")
+            String::from("It's a tempting red apple.")
         } else {
-            String::from("It's an apple core")
+            String::from("It's an apple core.")
         }
     }
 
     fn consume(&self) -> Result<String, &str> {
         if !self.eaten {
-            Ok(String::from("It's delicious! All that's left is the core"))
+            Ok(String::from("It's delicious! All that's left is the core."))
         } else {
-            Err("The core doesn't look appetising")
+            Err("The core doesn't look appetising.")
         }
   }
 }
@@ -72,7 +73,7 @@ impl Book {
 
 impl Entity for Book {
     fn describe(&self) -> String {
-        format!("It's a book. The title reads \"{}\" by {}", &self.title, &self.author)
+        format!("It's a book. The title reads \"{}\" by {}.", &self.title, &self.author)
     }
 
     fn read(&self) -> Result<String, &str> {
@@ -94,34 +95,47 @@ impl Scene {
         }
     }
 
-    fn find_entity(&self, ident: &EntityIdent) -> &Box<dyn Entity> {
+    fn find_entity(&self, ident: EntityIdent) -> Result<&Box<dyn Entity>, String> {
         match ident {
-            EntityIdent::Apple => &self.entities[0],
-            EntityIdent::Book => &self.entities[1],
+            EntityIdent::NullEntity(ident) => Err(ident),
+            EntityIdent::Apple => Ok(&self.entities[0]),
+            EntityIdent::Book => Ok(&self.entities[1]),
         }
     }
 
-    pub fn do_instruction(&mut self, instruction: Instruction) -> String {
+    pub fn do_instruction(&self, instruction: Instruction) -> String {
         match instruction {
-            Instruction::Look => String::from("You look around and see an apple and a book"),
-            Instruction::Describe(Some(ident)) => self.find_entity(&ident).describe(),
-            Instruction::Describe(None) => String::from("You can't see that"),
-            Instruction::Consume(Some(ident)) => {
-                let result = self.find_entity(&ident).consume();
-                match result {
-                    Ok(response) => response,
-                    Err(error) => format!("{}, so you decide not to eat it", error),
+            Instruction::Look => String::from("You look around and see an apple and a book."),
+            Instruction::Describe(ident) => {
+                match self.find_entity(ident) {
+                    Ok(entity) => entity.describe(),
+                    Err(ident) => format!("You can't find a {}", ident),
                 }
             },
-            Instruction::Consume(None) => String::from("You can't find that"),
-            Instruction::Read(Some(ident)) => {
-                let result = self.find_entity(&ident).read();
-                match result {
-                    Ok(response) => response,
-                    Err(error) => format!("{}", error),
+            Instruction::Consume(ident) => {
+                match self.find_entity(ident) {
+                    Ok(entity) => {
+                        let result = entity.consume();
+                        match result {
+                            Ok(response) => response,
+                            Err(error) => format!("{}, so you decide not to eat it.", error),
+                        }
+                    },
+                    Err(ident) => format!("You can't find a {}.", ident),
                 }
             },
-            Instruction::Read(None) => String::from("You can't find that"),
+            Instruction::Read(ident) => {
+                match self.find_entity(ident) {
+                    Ok(entity) => {
+                        let result = entity.read();
+                        match result {
+                            Ok(response) => response,
+                            Err(error) => format!("{}", error),
+                        }
+                    },
+                    Err(ident) => format!("You can't find a {}.", ident),
+                }
+            },
         }
     }
 }
