@@ -23,35 +23,47 @@ mod parser {
         Read(Option<EntityIdent>),
     }
 
+    const PARSE_ERROR: Result<Instruction, &str> = Err("I don't understand");
+
     pub fn parse_instruction(instruction: String) -> Result<Instruction, &'static str> {
         let instruction = instruction.trim();
         let tokens: Vec<&str> = instruction.split(" ").collect();
 
         if tokens.len() > 0 {
-            match tokens[0] {
-                "look" => {
-                    if tokens.len() == 1 {
-                        return Ok(Instruction::Look);
-                    }
-                    if tokens.len() == 3 && tokens[1] == "at" {
-                        return Ok(Instruction::Describe(EntityIdent::from_str(tokens[2])));
-                    }
-                },
-                "eat" => {
-                    if tokens.len() > 1 {
-                        return Ok(Instruction::Consume(EntityIdent::from_str(tokens[1])));
-                    }
-                },
-                "read" => {
-                    if tokens.len() > 1 {
-                        return Ok(Instruction::Read(EntityIdent::from_str(tokens[1])));
-                    }
-                },
-                _ => ()
+            return match tokens[0] {
+                "look" => parse_look(&tokens[1..]),
+                "eat" => parse_eat(&tokens[1..]),
+                "read" => parse_read(&tokens[1..]),
+                _ => PARSE_ERROR
             }
         }
 
-        Err("I don't understand")
+        PARSE_ERROR
+    }
+
+    fn parse_look(tokens: &[&str]) -> Result<Instruction, &'static str> {
+        return match tokens.len() {
+            0 => Ok(Instruction::Look),
+            2 if tokens[0] == "at" => Ok(Instruction::Describe(EntityIdent::from_str(tokens[1]))),
+            3 if tokens[0] == "at" && tokens[1] == "the" => Ok(Instruction::Describe(EntityIdent::from_str(tokens[2]))),
+            _ => PARSE_ERROR
+        }
+    }
+
+    fn parse_eat(tokens: &[&str]) -> Result<Instruction, &'static str> {
+        return match tokens.len() {
+            1 => Ok(Instruction::Consume(EntityIdent::from_str(tokens[0]))),
+            2 if tokens[0] == "the" => Ok(Instruction::Consume(EntityIdent::from_str(tokens[1]))),
+            _ => PARSE_ERROR
+        }
+    }
+
+    fn parse_read(tokens: &[&str]) -> Result<Instruction, &'static str> {
+        return match tokens.len() {
+            1 => Ok(Instruction::Read(EntityIdent::from_str(tokens[0]))),
+            2 if tokens[0] == "the" => Ok(Instruction::Read(EntityIdent::from_str(tokens[1]))),
+            _ => PARSE_ERROR
+        }
     }
 }
 
