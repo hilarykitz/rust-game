@@ -102,7 +102,7 @@ impl Scene {
 
 pub fn do_instruction(scene: &mut Scene, instruction: Instruction) -> String {
     match instruction {
-        Instruction::Exit => panic!("Can't convert exit instuction to string"),
+        Instruction::Exit => panic!("Can't perform exit instuction on scene"),
         Instruction::Look => String::from("You look around and see an apple and a book."),
         Instruction::Describe(ident) => match scene.find_entity(ident) {
             Ok(entity) => match entity {
