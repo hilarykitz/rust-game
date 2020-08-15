@@ -1,5 +1,5 @@
-use std::io;
 use std::convert::TryFrom;
+use std::io;
 
 mod game;
 mod parser;
@@ -15,7 +15,12 @@ fn main() {
         } else {
             match game::Instruction::try_from(instruction) {
                 Err(error) => println!("{}\n", error),
-                Ok(instruction) => println!("{}\n", scene.do_instruction(instruction)),
+                Ok(instruction) => {
+                    if instruction == game::Instruction::Exit {
+                        std::process::exit(0);
+                    }
+                    println!("{}\n", scene.do_instruction(instruction));
+                }
             }
         }
     }

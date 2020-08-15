@@ -1,12 +1,13 @@
-#[derive(Debug,PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum EntityIdent {
     NullEntity(String),
     Apple,
     Book,
 }
 
-#[derive(Debug,PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum Instruction {
+    Exit,
     Look,
     Describe(EntityIdent),
     Consume(EntityIdent),
@@ -26,14 +27,12 @@ trait Entity {
 }
 
 struct Apple {
-    eaten: bool
+    eaten: bool,
 }
 
 impl Apple {
     fn new() -> Apple {
-        Apple {
-            eaten: false
-        }
+        Apple { eaten: false }
     }
 }
 
@@ -52,7 +51,7 @@ impl Entity for Apple {
         } else {
             Err("The core doesn't look appetising.")
         }
-  }
+    }
 }
 
 struct Book {
@@ -73,7 +72,10 @@ impl Book {
 
 impl Entity for Book {
     fn describe(&self) -> String {
-        format!("It's a book. The title reads \"{}\" by {}.", &self.title, &self.author)
+        format!(
+            "It's a book. The title reads \"{}\" by {}.",
+            &self.title, &self.author
+        )
     }
 
     fn read(&self) -> Result<String, &str> {
@@ -82,7 +84,7 @@ impl Entity for Book {
 }
 
 pub struct Scene {
-    entities: Vec<Box<dyn Entity>>
+    entities: Vec<Box<dyn Entity>>,
 }
 
 impl Scene {
@@ -90,8 +92,12 @@ impl Scene {
         Scene {
             entities: vec![
                 Box::new(Apple::new()),
-                Box::new(Book::new(String::from("The Lusty Argonian Maid"), String::from("Crassius Curio"), String::from("[contents here]"))),
-            ]
+                Box::new(Book::new(
+                    String::from("The Lusty Argonian Maid"),
+                    String::from("Crassius Curio"),
+                    String::from("[contents here]"),
+                )),
+            ],
         }
     }
 
@@ -105,36 +111,31 @@ impl Scene {
 
     pub fn do_instruction(&self, instruction: Instruction) -> String {
         match instruction {
+            Instruction::Exit => panic!("Can't convert exit instuction to string"),
             Instruction::Look => String::from("You look around and see an apple and a book."),
-            Instruction::Describe(ident) => {
-                match self.find_entity(ident) {
-                    Ok(entity) => entity.describe(),
-                    Err(ident) => format!("You can't find a {}", ident),
-                }
+            Instruction::Describe(ident) => match self.find_entity(ident) {
+                Ok(entity) => entity.describe(),
+                Err(ident) => format!("You can't find a {}", ident),
             },
-            Instruction::Consume(ident) => {
-                match self.find_entity(ident) {
-                    Ok(entity) => {
-                        let result = entity.consume();
-                        match result {
-                            Ok(response) => response,
-                            Err(error) => format!("{}, so you decide not to eat it.", error),
-                        }
-                    },
-                    Err(ident) => format!("You can't find a {}.", ident),
+            Instruction::Consume(ident) => match self.find_entity(ident) {
+                Ok(entity) => {
+                    let result = entity.consume();
+                    match result {
+                        Ok(response) => response,
+                        Err(error) => format!("{}, so you decide not to eat it.", error),
+                    }
                 }
+                Err(ident) => format!("You can't find a {}.", ident),
             },
-            Instruction::Read(ident) => {
-                match self.find_entity(ident) {
-                    Ok(entity) => {
-                        let result = entity.read();
-                        match result {
-                            Ok(response) => response,
-                            Err(error) => format!("{}", error),
-                        }
-                    },
-                    Err(ident) => format!("You can't find a {}.", ident),
+            Instruction::Read(ident) => match self.find_entity(ident) {
+                Ok(entity) => {
+                    let result = entity.read();
+                    match result {
+                        Ok(response) => response,
+                        Err(error) => format!("{}", error),
+                    }
                 }
+                Err(ident) => format!("You can't find a {}.", ident),
             },
         }
     }

@@ -1,8 +1,5 @@
+use crate::game::{EntityIdent, Instruction};
 use std::convert::TryFrom;
-use crate::game::{
-    EntityIdent,
-    Instruction,
-};
 
 const PARSE_ERROR: Result<Instruction, &str> = Err("I don't understand");
 
@@ -25,54 +22,42 @@ impl TryFrom<String> for Instruction {
 
         if tokens.len() > 0 {
             match tokens[0] {
+                "exit" => Ok(Instruction::Exit),
                 "look" => parse_look(&tokens[1..]),
                 "eat" => parse_eat(&tokens[1..]),
                 "read" => parse_read(&tokens[1..]),
-                _ => PARSE_ERROR
+                _ => PARSE_ERROR,
             }
         } else {
             PARSE_ERROR
         }
     }
-
 }
 
 fn parse_look(tokens: &[&str]) -> Result<Instruction, &'static str> {
     match tokens.len() {
-        0 => {
-            Ok(Instruction::Look)
-        },
-        2 if tokens[0] == "at" => {
-            Ok(Instruction::Describe(EntityIdent::from(tokens[1])))
-        },
+        0 => Ok(Instruction::Look),
+        2 if tokens[0] == "at" => Ok(Instruction::Describe(EntityIdent::from(tokens[1]))),
         3 if tokens[0] == "at" && tokens[1] == "the" => {
             Ok(Instruction::Describe(EntityIdent::from(tokens[2])))
-        },
-        _ => PARSE_ERROR
+        }
+        _ => PARSE_ERROR,
     }
 }
 
 fn parse_eat(tokens: &[&str]) -> Result<Instruction, &'static str> {
     match tokens.len() {
-        1 => {
-            Ok(Instruction::Consume(EntityIdent::from(tokens[0])))
-        },
-        2 if tokens[0] == "the" => {
-            Ok(Instruction::Consume(EntityIdent::from(tokens[1])))
-        },
-        _ => PARSE_ERROR
+        1 => Ok(Instruction::Consume(EntityIdent::from(tokens[0]))),
+        2 if tokens[0] == "the" => Ok(Instruction::Consume(EntityIdent::from(tokens[1]))),
+        _ => PARSE_ERROR,
     }
 }
 
 fn parse_read(tokens: &[&str]) -> Result<Instruction, &'static str> {
     match tokens.len() {
-        1 => {
-            Ok(Instruction::Read(EntityIdent::from(tokens[0])))
-        },
-        2 if tokens[0] == "the" => {
-            Ok(Instruction::Read(EntityIdent::from(tokens[1])))
-        },
-        _ => PARSE_ERROR
+        1 => Ok(Instruction::Read(EntityIdent::from(tokens[0]))),
+        2 if tokens[0] == "the" => Ok(Instruction::Read(EntityIdent::from(tokens[1]))),
+        _ => PARSE_ERROR,
     }
 }
 
@@ -84,6 +69,12 @@ mod tests {
     fn it_parses_bad_input() {
         assert_eq!(Instruction::try_from(String::from("")), PARSE_ERROR);
         assert_eq!(Instruction::try_from(String::from("dance")), PARSE_ERROR);
+    }
+
+    #[test]
+    fn it_parses_exit() {
+        let instruction = Instruction::try_from(String::from("exit")).unwrap();
+        assert_eq!(instruction, Instruction::Exit);
     }
 
     #[test]
@@ -101,13 +92,19 @@ mod tests {
         assert_eq!(instruction, Instruction::Describe(EntityIdent::Book));
 
         let instruction = Instruction::try_from(String::from("look at dolphin")).unwrap();
-        assert_eq!(instruction, Instruction::Describe(EntityIdent::NullEntity(String::from("dolphin"))));
+        assert_eq!(
+            instruction,
+            Instruction::Describe(EntityIdent::NullEntity(String::from("dolphin")))
+        );
 
         let instruction = Instruction::try_from(String::from("look at the book")).unwrap();
         assert_eq!(instruction, Instruction::Describe(EntityIdent::Book));
 
         let instruction = Instruction::try_from(String::from("look at the dolphin")).unwrap();
-        assert_eq!(instruction, Instruction::Describe(EntityIdent::NullEntity(String::from("dolphin"))));
+        assert_eq!(
+            instruction,
+            Instruction::Describe(EntityIdent::NullEntity(String::from("dolphin")))
+        );
     }
 
     #[test]
@@ -119,7 +116,10 @@ mod tests {
         assert_eq!(instruction, Instruction::Consume(EntityIdent::Book));
 
         let instruction = Instruction::try_from(String::from("eat dolphin")).unwrap();
-        assert_eq!(instruction, Instruction::Consume(EntityIdent::NullEntity(String::from("dolphin"))));
+        assert_eq!(
+            instruction,
+            Instruction::Consume(EntityIdent::NullEntity(String::from("dolphin")))
+        );
     }
 
     #[test]
@@ -131,12 +131,18 @@ mod tests {
         assert_eq!(instruction, Instruction::Read(EntityIdent::Book));
 
         let instruction = Instruction::try_from(String::from("read dolphin")).unwrap();
-        assert_eq!(instruction, Instruction::Read(EntityIdent::NullEntity(String::from("dolphin"))));
+        assert_eq!(
+            instruction,
+            Instruction::Read(EntityIdent::NullEntity(String::from("dolphin")))
+        );
 
         let instruction = Instruction::try_from(String::from("read the book")).unwrap();
         assert_eq!(instruction, Instruction::Read(EntityIdent::Book));
 
         let instruction = Instruction::try_from(String::from("read the dolphin")).unwrap();
-        assert_eq!(instruction, Instruction::Read(EntityIdent::NullEntity(String::from("dolphin"))));
+        assert_eq!(
+            instruction,
+            Instruction::Read(EntityIdent::NullEntity(String::from("dolphin")))
+        );
     }
 }
