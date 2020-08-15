@@ -98,44 +98,44 @@ impl Scene {
             EntityIdent::Book => Ok(&mut self.entities[1]),
         }
     }
-}
 
-pub fn do_instruction(scene: &mut Scene, instruction: Instruction) -> String {
-    match instruction {
-        Instruction::Exit => panic!("Can't perform exit instuction on scene"),
-        Instruction::Look => String::from("You look around and see an apple and a book."),
-        Instruction::Describe(ident) => match scene.find_entity(ident) {
-            Ok(entity) => match entity {
-                Entity::Apple(apple) => apple.describe(),
-                Entity::Book(book) => book.describe(),
+    pub fn do_instruction(&mut self, instruction: Instruction) -> String {
+        match instruction {
+            Instruction::Exit => panic!("Can't perform exit instuction on scene"),
+            Instruction::Look => String::from("You look around and see an apple and a book."),
+            Instruction::Describe(ident) => match self.find_entity(ident) {
+                Ok(entity) => match entity {
+                    Entity::Apple(apple) => apple.describe(),
+                    Entity::Book(book) => book.describe(),
+                },
+                Err(ident) => format!("You can't find a {}", ident),
             },
-            Err(ident) => format!("You can't find a {}", ident),
-        },
-        Instruction::Consume(ident) => match scene.find_entity(ident) {
-            Ok(entity) => {
-                let result = match entity {
-                    Entity::Apple(apple) => apple.consume(),
-                    Entity::Book(_) => Err("It's not food."),
-                };
-                match result {
-                    Ok(response) => response,
-                    Err(error) => format!("{} You decide not to eat it.", error),
+            Instruction::Consume(ident) => match self.find_entity(ident) {
+                Ok(entity) => {
+                    let result = match entity {
+                        Entity::Apple(apple) => apple.consume(),
+                        Entity::Book(_) => Err("It's not food."),
+                    };
+                    match result {
+                        Ok(response) => response,
+                        Err(error) => format!("{} You decide not to eat it.", error),
+                    }
                 }
-            }
-            Err(ident) => format!("You can't find a {}.", ident),
-        },
-        Instruction::Read(ident) => match scene.find_entity(ident) {
-            Ok(entity) => {
-                let result = match entity {
-                    Entity::Book(book) => book.read(),
-                    Entity::Apple(_) => Err("There's nothing to read."),
-                };
-                match result {
-                    Ok(response) => response,
-                    Err(error) => format!("{}", error),
+                Err(ident) => format!("You can't find a {}.", ident),
+            },
+            Instruction::Read(ident) => match self.find_entity(ident) {
+                Ok(entity) => {
+                    let result = match entity {
+                        Entity::Book(book) => book.read(),
+                        Entity::Apple(_) => Err("There's nothing to read."),
+                    };
+                    match result {
+                        Ok(response) => response,
+                        Err(error) => format!("{}", error),
+                    }
                 }
-            }
-            Err(ident) => format!("You can't find a {}.", ident),
-        },
+                Err(ident) => format!("You can't find a {}.", ident),
+            },
+        }
     }
 }

@@ -19,7 +19,7 @@ fn main() {
                     if instruction == game::Instruction::Exit {
                         std::process::exit(0);
                     }
-                    println!("{}\n", game::do_instruction(&mut scene, instruction));
+                    println!("{}\n", scene.do_instruction(instruction));
                 }
             }
         }
