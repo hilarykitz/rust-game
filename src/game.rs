@@ -101,7 +101,7 @@ impl Scene {
 
     pub fn do_instruction(&mut self, instruction: Instruction) -> String {
         match instruction {
-            Instruction::Exit => panic!("Can't perform exit instuction on scene"),
+            Instruction::Exit => panic!("Can't perform exit instruction on scene"),
             Instruction::Look => String::from("You look around and see an apple and a book."),
             Instruction::Describe(ident) => match self.find_entity(ident) {
                 Ok(entity) => match entity {
@@ -131,7 +131,7 @@ impl Scene {
                     };
                     match result {
                         Ok(response) => response,
-                        Err(error) => format!("{}", error),
+                        Err(error) => format!("{} You leave it alone.", error),
                     }
                 }
                 Err(ident) => format!("You can't find a {}.", ident),
