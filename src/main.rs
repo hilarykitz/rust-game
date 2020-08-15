@@ -5,7 +5,7 @@ mod game;
 mod parser;
 
 fn main() {
-    let scene = game::Scene::new();
+    let mut scene = game::Scene::new();
 
     loop {
         let mut instruction = String::new();
@@ -19,7 +19,7 @@ fn main() {
                     if instruction == game::Instruction::Exit {
                         std::process::exit(0);
                     }
-                    println!("{}\n", game::do_instruction(&scene, instruction));
+                    println!("{}\n", game::do_instruction(&mut scene, instruction));
                 }
             }
         }

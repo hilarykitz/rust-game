@@ -36,8 +36,9 @@ impl Apple {
         }
     }
 
-    fn consume(&self) -> Result<String, &str> {
+    fn consume(&mut self) -> Result<String, &str> {
         if !self.eaten {
+            self.eaten = true;
             Ok(String::from("It's delicious! All that's left is the core."))
         } else {
             Err("The core doesn't look appetising.")
@@ -90,16 +91,16 @@ impl Scene {
         }
     }
 
-    fn find_entity(&self, ident: EntityIdent) -> Result<&Entity, String> {
+    fn find_entity(&mut self, ident: EntityIdent) -> Result<&mut Entity, String> {
         match ident {
             EntityIdent::NullEntity(ident) => Err(ident),
-            EntityIdent::Apple => Ok(&self.entities[0]),
-            EntityIdent::Book => Ok(&self.entities[1]),
+            EntityIdent::Apple => Ok(&mut self.entities[0]),
+            EntityIdent::Book => Ok(&mut self.entities[1]),
         }
     }
 }
 
-pub fn do_instruction(scene: &Scene, instruction: Instruction) -> String {
+pub fn do_instruction(scene: &mut Scene, instruction: Instruction) -> String {
     match instruction {
         Instruction::Exit => panic!("Can't convert exit instuction to string"),
         Instruction::Look => String::from("You look around and see an apple and a book."),
