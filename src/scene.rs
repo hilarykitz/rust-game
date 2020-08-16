@@ -15,16 +15,16 @@ pub enum Entity {
 }
 
 pub struct Apple {
-    eaten: bool,
+    consumed: bool,
 }
 
 impl Apple {
     pub fn new() -> Apple {
-        Apple { eaten: false }
+        Apple { consumed: false }
     }
 
     pub fn describe(&self) -> String {
-        if !self.eaten {
+        if !self.consumed {
             String::from("It's a tempting red apple.")
         } else {
             String::from("It's an apple core.")
@@ -32,8 +32,8 @@ impl Apple {
     }
 
     pub fn consume(&mut self) -> Result<String, &str> {
-        if !self.eaten {
-            self.eaten = true;
+        if !self.consumed {
+            self.consumed = true;
             Ok(String::from("It's delicious! All that's left is the core."))
         } else {
             Err("The core doesn't look appetising.")
