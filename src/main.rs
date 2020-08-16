@@ -26,18 +26,20 @@ fn do_instruction(scene: &mut Scene, instruction: Instruction) -> String {
         Instruction::Exit => panic!("Can't do exit instruction on scene"),
         Instruction::Look => String::from("You look around and see an apple and a book."),
         Instruction::Describe(ident, token) => match ident {
+            None => format!("You've never heard of a {}.", token),
             Some(ident) => match find_entity(scene, ident) {
+                None => format!("You look around but you can't find a {} here.", token),
                 Some(entity) => match entity {
                     Entity::Apple(entity) => entity.describe(),
                     Entity::Book(entity) => entity.describe(),
                     Entity::Wrench(entity) => entity.describe(),
                 },
-                None => format!("You look around but you can't find a {} here.", token),
             },
-            None => format!("You've never heard of a {}.", token),
         },
         Instruction::Consume(ident, token) => match ident {
+            None => format!("You've never heard of a {}.", token),
             Some(ident) => match find_entity(scene, ident) {
+                None => format!("You look around but you can't find a {} here.", token),
                 Some(entity) => {
                     let result = match entity {
                         Entity::Apple(apple) => apple.consume(),
@@ -45,16 +47,16 @@ fn do_instruction(scene: &mut Scene, instruction: Instruction) -> String {
                         Entity::Wrench(_) => Err("You bite down hard. Ouch!"),
                     };
                     match result {
-                        Ok(response) => response,
                         Err(error) => format!("{} You decide not to eat it.", error),
+                        Ok(response) => response,
                     }
                 }
-                None => format!("You look around but you can't find a {} here.", token),
             },
-            None => format!("You've never heard of a {}.", token),
         },
         Instruction::Read(ident, token) => match ident {
+            None => format!("You've never heard of a {}.", token),
             Some(ident) => match find_entity(scene, ident) {
+                None => format!("You look around but can't find a {} here.", token),
                 Some(entity) => {
                     let result = match entity {
                         Entity::Book(book) => book.read(),
@@ -62,13 +64,11 @@ fn do_instruction(scene: &mut Scene, instruction: Instruction) -> String {
                         Entity::Wrench(_) => Err("There's nothing to read."),
                     };
                     match result {
-                        Ok(response) => response,
                         Err(error) => format!("{} You leave it alone.", error),
+                        Ok(response) => response,
                     }
                 }
-                None => format!("You look around but can't find a {} here.", token),
             },
-            None => format!("You've never heard of a {}.", token),
         },
     }
 }
