@@ -2,30 +2,30 @@ use std::convert::TryFrom;
 
 const PARSE_ERROR: Result<Instruction, &str> = Err("I don't understand");
 
-pub type EntityToken = String;
+type EntityToken = String;
 
 #[derive(Debug, PartialEq)]
 pub enum EntityIdent {
-    NullEntity(EntityToken),
-    Apple(EntityToken),
-    Book(EntityToken),
+    NullEntity,
+    Apple,
+    Book,
 }
 
 #[derive(Debug, PartialEq)]
 pub enum Instruction {
     Exit,
     Look,
-    Describe(EntityIdent),
-    Consume(EntityIdent),
-    Read(EntityIdent),
+    Describe(EntityIdent, EntityToken),
+    Consume(EntityIdent, EntityToken),
+    Read(EntityIdent, EntityToken),
 }
 
 impl From<&str> for EntityIdent {
     fn from(string: &str) -> EntityIdent {
         match string {
-            "apple" => EntityIdent::Apple(String::from(string)),
-            "book" => EntityIdent::Book(String::from(string)),
-            _ => EntityIdent::NullEntity(String::from(string)),
+            "apple" => EntityIdent::Apple,
+            "book" => EntityIdent::Book,
+            _ => EntityIdent::NullEntity,
         }
     }
 }
@@ -54,9 +54,9 @@ impl TryFrom<String> for Instruction {
 fn parse_look(tokens: &[&str]) -> Result<Instruction, &'static str> {
     match tokens.len() {
         0 => Ok(Instruction::Look),
-        2 if tokens[0] == "at" => Ok(Instruction::Describe(EntityIdent::from(tokens[1]))),
+        2 if tokens[0] == "at" => Ok(Instruction::Describe(EntityIdent::from(tokens[1]), String::from(tokens[1]))),
         3 if tokens[0] == "at" && tokens[1] == "the" => {
-            Ok(Instruction::Describe(EntityIdent::from(tokens[2])))
+            Ok(Instruction::Describe(EntityIdent::from(tokens[2]), String::from(tokens[2])))
         }
         _ => PARSE_ERROR,
     }
@@ -64,16 +64,16 @@ fn parse_look(tokens: &[&str]) -> Result<Instruction, &'static str> {
 
 fn parse_eat(tokens: &[&str]) -> Result<Instruction, &'static str> {
     match tokens.len() {
-        1 => Ok(Instruction::Consume(EntityIdent::from(tokens[0]))),
-        2 if tokens[0] == "the" => Ok(Instruction::Consume(EntityIdent::from(tokens[1]))),
+        1 => Ok(Instruction::Consume(EntityIdent::from(tokens[0]), String::from(tokens[0]))),
+        2 if tokens[0] == "the" => Ok(Instruction::Consume(EntityIdent::from(tokens[1]), String::from(tokens[1]))),
         _ => PARSE_ERROR,
     }
 }
 
 fn parse_read(tokens: &[&str]) -> Result<Instruction, &'static str> {
     match tokens.len() {
-        1 => Ok(Instruction::Read(EntityIdent::from(tokens[0]))),
-        2 if tokens[0] == "the" => Ok(Instruction::Read(EntityIdent::from(tokens[1]))),
+        1 => Ok(Instruction::Read(EntityIdent::from(tokens[0]), String::from(tokens[0]))),
+        2 if tokens[0] == "the" => Ok(Instruction::Read(EntityIdent::from(tokens[1]), String::from(tokens[1]))),
         _ => PARSE_ERROR,
     }
 }
@@ -108,25 +108,25 @@ mod tests {
         let instruction = Instruction::try_from(String::from("look at book")).unwrap();
         assert_eq!(
             instruction,
-            Instruction::Describe(EntityIdent::Book(String::from("book")))
+            Instruction::Describe(EntityIdent::Book, String::from("book"))
         );
 
         let instruction = Instruction::try_from(String::from("look at dolphin")).unwrap();
         assert_eq!(
             instruction,
-            Instruction::Describe(EntityIdent::NullEntity(String::from("dolphin")))
+            Instruction::Describe(EntityIdent::NullEntity, String::from("dolphin"))
         );
 
         let instruction = Instruction::try_from(String::from("look at the book")).unwrap();
         assert_eq!(
             instruction,
-            Instruction::Describe(EntityIdent::Book(String::from("book")))
+            Instruction::Describe(EntityIdent::Book, String::from("book"))
         );
 
         let instruction = Instruction::try_from(String::from("look at the dolphin")).unwrap();
         assert_eq!(
             instruction,
-            Instruction::Describe(EntityIdent::NullEntity(String::from("dolphin")))
+            Instruction::Describe(EntityIdent::NullEntity, String::from("dolphin"))
         );
     }
 
@@ -138,13 +138,13 @@ mod tests {
         let instruction = Instruction::try_from(String::from("eat book")).unwrap();
         assert_eq!(
             instruction,
-            Instruction::Consume(EntityIdent::Book(String::from("book")))
+            Instruction::Consume(EntityIdent::Book, String::from("book"))
         );
 
         let instruction = Instruction::try_from(String::from("eat dolphin")).unwrap();
         assert_eq!(
             instruction,
-            Instruction::Consume(EntityIdent::NullEntity(String::from("dolphin")))
+            Instruction::Consume(EntityIdent::NullEntity, String::from("dolphin"))
         );
     }
 
@@ -156,25 +156,25 @@ mod tests {
         let instruction = Instruction::try_from(String::from("read book")).unwrap();
         assert_eq!(
             instruction,
-            Instruction::Read(EntityIdent::Book(String::from("book")))
+            Instruction::Read(EntityIdent::Book, String::from("book"))
         );
 
         let instruction = Instruction::try_from(String::from("read dolphin")).unwrap();
         assert_eq!(
             instruction,
-            Instruction::Read(EntityIdent::NullEntity(String::from("dolphin")))
+            Instruction::Read(EntityIdent::NullEntity, String::from("dolphin"))
         );
 
         let instruction = Instruction::try_from(String::from("read the book")).unwrap();
         assert_eq!(
             instruction,
-            Instruction::Read(EntityIdent::Book(String::from("book")))
+            Instruction::Read(EntityIdent::Book, String::from("book"))
         );
 
         let instruction = Instruction::try_from(String::from("read the dolphin")).unwrap();
         assert_eq!(
             instruction,
-            Instruction::Read(EntityIdent::NullEntity(String::from("dolphin")))
+            Instruction::Read(EntityIdent::NullEntity, String::from("dolphin"))
         );
     }
 }

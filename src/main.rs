@@ -5,26 +5,21 @@ mod game;
 mod parser;
 
 use game::{Entity, Scene};
-use parser::{EntityIdent, EntityToken, Instruction};
+use parser::{EntityIdent, Instruction};
 
-fn find_entity(scene: &mut Scene, ident: EntityIdent) -> Result<&mut Entity, EntityToken> {
-    if let EntityIdent::NullEntity(token) = ident {
-        Err(token)
+fn find_entity(scene: &mut Scene, ident: EntityIdent) -> Option<&mut Entity> {
+    if let EntityIdent::NullEntity = ident {
+        None
     } else {
         scene
             .entities
             .iter_mut()
             .find(|entity| match (&ident, entity) {
-                (EntityIdent::Apple(_), Entity::Apple(_)) => true,
-                (EntityIdent::Apple(_), _) => false,
-                (EntityIdent::Book(_), Entity::Book(_)) => true,
-                (EntityIdent::Book(_), _) => false,
-                (EntityIdent::NullEntity(_), _) => unreachable!(),
-            })
-            .ok_or(match ident {
-                EntityIdent::Apple(token) => token,
-                EntityIdent::Book(token) => token,
-                EntityIdent::NullEntity(_) => unreachable!(),
+                (EntityIdent::Apple, Entity::Apple(_)) => true,
+                (EntityIdent::Apple, _) => false,
+                (EntityIdent::Book, Entity::Book(_)) => true,
+                (EntityIdent::Book, _) => false,
+                (EntityIdent::NullEntity, _) => unreachable!(),
             })
     }
 }
@@ -33,15 +28,15 @@ fn do_instruction(scene: &mut Scene, instruction: Instruction) -> String {
     match instruction {
         Instruction::Exit => panic!("Can't do exit instruction on scene"),
         Instruction::Look => String::from("You look around and see an apple and a book."),
-        Instruction::Describe(ident) => match find_entity(scene, ident) {
-            Ok(entity) => match entity {
+        Instruction::Describe(ident, token) => match find_entity(scene, ident) {
+            Some(entity) => match entity {
                 Entity::Apple(apple) => apple.describe(),
                 Entity::Book(book) => book.describe(),
             },
-            Err(token) => format!("You can't find a {}", token),
+            None => format!("You can't find a {}", token),
         },
-        Instruction::Consume(ident) => match find_entity(scene, ident) {
-            Ok(entity) => {
+        Instruction::Consume(ident, token) => match find_entity(scene, ident) {
+            Some(entity) => {
                 let result = match entity {
                     Entity::Apple(apple) => apple.consume(),
                     Entity::Book(_) => Err("It's not food."),
@@ -51,10 +46,10 @@ fn do_instruction(scene: &mut Scene, instruction: Instruction) -> String {
                     Err(error) => format!("{} You decide not to eat it.", error),
                 }
             }
-            Err(token) => format!("You can't find a {}.", token),
+            None => format!("You can't find a {}.", token),
         },
-        Instruction::Read(ident) => match find_entity(scene, ident) {
-            Ok(entity) => {
+        Instruction::Read(ident, token) => match find_entity(scene, ident) {
+            Some(entity) => {
                 let result = match entity {
                     Entity::Book(book) => book.read(),
                     Entity::Apple(_) => Err("There's nothing to read."),
@@ -64,7 +59,7 @@ fn do_instruction(scene: &mut Scene, instruction: Instruction) -> String {
                     Err(error) => format!("{} You leave it alone.", error),
                 }
             }
-            Err(token) => format!("You can't find a {}.", token),
+            None => format!("You can't find a {}.", token),
         },
     }
 }
