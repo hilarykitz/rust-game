@@ -8,31 +8,19 @@ use game::{Entity, Scene};
 use parser::{EntityIdent, EntityToken, Instruction};
 
 fn find_entity(scene: &mut Scene, ident: EntityIdent) -> Result<&mut Entity, EntityToken> {
-    match ident {
-        EntityIdent::NullEntity(token) => Err(token),
-        EntityIdent::Apple(token) => {
-            if let Some(entity) = scene
-                .entities
-                .iter_mut()
-                .find(|entity| matches!(entity, Entity::Apple(_)))
-            {
-                Ok(entity)
-            } else {
-                Err(token)
-            }
-        }
-        EntityIdent::Book(token) => {
-            if let Some(entity) = scene
-                .entities
-                .iter_mut()
-                .find(|entity| matches!(entity, Entity::Book(_)))
-            {
-                Ok(entity)
-            } else {
-                Err(token)
-            }
-        }
-    }
+    scene
+        .entities
+        .iter_mut()
+        .find(|entity| match (&ident, entity) {
+            (EntityIdent::Apple(_), Entity::Apple(_)) => true,
+            (EntityIdent::Book(_), Entity::Book(_)) => true,
+            _ => false,
+        })
+        .ok_or(match ident {
+            EntityIdent::NullEntity(token) => token,
+            EntityIdent::Apple(token) => token,
+            EntityIdent::Book(token) => token,
+        })
 }
 
 fn do_instruction(scene: &mut Scene, instruction: Instruction) -> String {
