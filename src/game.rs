@@ -1,6 +1,7 @@
 pub enum Entity {
     Apple(Apple),
     Book(Book),
+    Wrench(Wrench),
 }
 
 pub struct Apple {
@@ -54,6 +55,18 @@ impl Book {
 
     pub fn read(&self) -> Result<String, &str> {
         Ok(format!("The book reads:\n{}", &self.contents))
+    }
+}
+
+pub struct Wrench;
+
+impl Wrench {
+    pub fn new() -> Wrench {
+        Wrench
+    }
+
+    pub fn describe(&self) -> String {
+        format!("It's a wrench.")
     }
 }
 
