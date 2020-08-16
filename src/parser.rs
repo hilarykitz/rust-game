@@ -5,8 +5,8 @@ const PARSE_ERROR: Result<Instruction, &str> = Err("I don't understand");
 #[derive(Debug, PartialEq)]
 pub enum EntityIdent {
     NullEntity(String),
-    Apple,
-    Book,
+    Apple(String),
+    Book(String),
 }
 
 #[derive(Debug, PartialEq)]
@@ -21,8 +21,8 @@ pub enum Instruction {
 impl From<&str> for EntityIdent {
     fn from(string: &str) -> EntityIdent {
         match string {
-            "apple" => EntityIdent::Apple,
-            "book" => EntityIdent::Book,
+            "apple" => EntityIdent::Apple(String::from(string)),
+            "book" => EntityIdent::Book(String::from(string)),
             _ => EntityIdent::NullEntity(String::from(string)),
         }
     }
@@ -104,7 +104,10 @@ mod tests {
         assert_eq!(instruction, PARSE_ERROR);
 
         let instruction = Instruction::try_from(String::from("look at book")).unwrap();
-        assert_eq!(instruction, Instruction::Describe(EntityIdent::Book));
+        assert_eq!(
+            instruction,
+            Instruction::Describe(EntityIdent::Book(String::from("book")))
+        );
 
         let instruction = Instruction::try_from(String::from("look at dolphin")).unwrap();
         assert_eq!(
@@ -113,7 +116,10 @@ mod tests {
         );
 
         let instruction = Instruction::try_from(String::from("look at the book")).unwrap();
-        assert_eq!(instruction, Instruction::Describe(EntityIdent::Book));
+        assert_eq!(
+            instruction,
+            Instruction::Describe(EntityIdent::Book(String::from("book")))
+        );
 
         let instruction = Instruction::try_from(String::from("look at the dolphin")).unwrap();
         assert_eq!(
@@ -128,7 +134,10 @@ mod tests {
         assert_eq!(instruction, PARSE_ERROR);
 
         let instruction = Instruction::try_from(String::from("eat book")).unwrap();
-        assert_eq!(instruction, Instruction::Consume(EntityIdent::Book));
+        assert_eq!(
+            instruction,
+            Instruction::Consume(EntityIdent::Book(String::from("book")))
+        );
 
         let instruction = Instruction::try_from(String::from("eat dolphin")).unwrap();
         assert_eq!(
@@ -143,7 +152,10 @@ mod tests {
         assert_eq!(instruction, PARSE_ERROR);
 
         let instruction = Instruction::try_from(String::from("read book")).unwrap();
-        assert_eq!(instruction, Instruction::Read(EntityIdent::Book));
+        assert_eq!(
+            instruction,
+            Instruction::Read(EntityIdent::Book(String::from("book")))
+        );
 
         let instruction = Instruction::try_from(String::from("read dolphin")).unwrap();
         assert_eq!(
@@ -152,7 +164,10 @@ mod tests {
         );
 
         let instruction = Instruction::try_from(String::from("read the book")).unwrap();
-        assert_eq!(instruction, Instruction::Read(EntityIdent::Book));
+        assert_eq!(
+            instruction,
+            Instruction::Read(EntityIdent::Book(String::from("book")))
+        );
 
         let instruction = Instruction::try_from(String::from("read the dolphin")).unwrap();
         assert_eq!(

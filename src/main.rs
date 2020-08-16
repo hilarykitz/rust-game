@@ -10,8 +10,28 @@ use parser::{EntityIdent, Instruction};
 fn find_entity(scene: &mut Scene, ident: EntityIdent) -> Result<&mut Entity, String> {
     match ident {
         EntityIdent::NullEntity(ident) => Err(ident),
-        EntityIdent::Apple => Ok(&mut scene.entities[0]),
-        EntityIdent::Book => Ok(&mut scene.entities[1]),
+        EntityIdent::Apple(ident) => {
+            if let Some(apple) = scene
+                .entities
+                .iter_mut()
+                .find(|entity| matches!(entity, Entity::Apple(_)))
+            {
+                Ok(apple)
+            } else {
+                Err(ident)
+            }
+        }
+        EntityIdent::Book(ident) => {
+            if let Some(apple) = scene
+                .entities
+                .iter_mut()
+                .find(|entity| matches!(entity, Entity::Book(_)))
+            {
+                Ok(apple)
+            } else {
+                Err(ident)
+            }
+        }
     }
 }
 
