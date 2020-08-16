@@ -9,8 +9,8 @@ use parser::{EntityIdent, EntityToken, Instruction};
 
 fn find_entity(scene: &mut Scene, ident: EntityIdent) -> Result<&mut Entity, EntityToken> {
     match ident {
-        EntityIdent::NullEntity(ident) => Err(ident),
-        EntityIdent::Apple(ident) => {
+        EntityIdent::NullEntity(token) => Err(token),
+        EntityIdent::Apple(token) => {
             if let Some(apple) = scene
                 .entities
                 .iter_mut()
@@ -18,10 +18,10 @@ fn find_entity(scene: &mut Scene, ident: EntityIdent) -> Result<&mut Entity, Ent
             {
                 Ok(apple)
             } else {
-                Err(ident)
+                Err(token)
             }
         }
-        EntityIdent::Book(ident) => {
+        EntityIdent::Book(token) => {
             if let Some(apple) = scene
                 .entities
                 .iter_mut()
@@ -29,7 +29,7 @@ fn find_entity(scene: &mut Scene, ident: EntityIdent) -> Result<&mut Entity, Ent
             {
                 Ok(apple)
             } else {
-                Err(ident)
+                Err(token)
             }
         }
     }
@@ -44,7 +44,7 @@ fn do_instruction(scene: &mut Scene, instruction: Instruction) -> String {
                 Entity::Apple(apple) => apple.describe(),
                 Entity::Book(book) => book.describe(),
             },
-            Err(ident) => format!("You can't find a {}", ident),
+            Err(token) => format!("You can't find a {}", token),
         },
         Instruction::Consume(ident) => match find_entity(scene, ident) {
             Ok(entity) => {
@@ -57,7 +57,7 @@ fn do_instruction(scene: &mut Scene, instruction: Instruction) -> String {
                     Err(error) => format!("{} You decide not to eat it.", error),
                 }
             }
-            Err(ident) => format!("You can't find a {}.", ident),
+            Err(token) => format!("You can't find a {}.", token),
         },
         Instruction::Read(ident) => match find_entity(scene, ident) {
             Ok(entity) => {
@@ -70,7 +70,7 @@ fn do_instruction(scene: &mut Scene, instruction: Instruction) -> String {
                     Err(error) => format!("{} You leave it alone.", error),
                 }
             }
-            Err(ident) => format!("You can't find a {}.", ident),
+            Err(token) => format!("You can't find a {}.", token),
         },
     }
 }
