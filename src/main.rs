@@ -5,9 +5,9 @@ mod game;
 mod parser;
 
 use game::{Entity, Scene};
-use parser::{EntityIdent, Instruction};
+use parser::{EntityIdent, EntityToken, Instruction};
 
-fn find_entity(scene: &mut Scene, ident: EntityIdent) -> Result<&mut Entity, String> {
+fn find_entity(scene: &mut Scene, ident: EntityIdent) -> Result<&mut Entity, EntityToken> {
     match ident {
         EntityIdent::NullEntity(ident) => Err(ident),
         EntityIdent::Apple(ident) => {

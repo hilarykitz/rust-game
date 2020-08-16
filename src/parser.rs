@@ -2,11 +2,13 @@ use std::convert::TryFrom;
 
 const PARSE_ERROR: Result<Instruction, &str> = Err("I don't understand");
 
+pub type EntityToken = String;
+
 #[derive(Debug, PartialEq)]
 pub enum EntityIdent {
-    NullEntity(String),
-    Apple(String),
-    Book(String),
+    NullEntity(EntityToken),
+    Apple(EntityToken),
+    Book(EntityToken),
 }
 
 #[derive(Debug, PartialEq)]
