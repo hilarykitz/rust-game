@@ -1,7 +1,22 @@
-use crate::game::{EntityIdent, Instruction};
 use std::convert::TryFrom;
 
 const PARSE_ERROR: Result<Instruction, &str> = Err("I don't understand");
+
+#[derive(Debug, PartialEq)]
+pub enum EntityIdent {
+    NullEntity(String),
+    Apple,
+    Book,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum Instruction {
+    Exit,
+    Look,
+    Describe(EntityIdent),
+    Consume(EntityIdent),
+    Read(EntityIdent),
+}
 
 impl From<&str> for EntityIdent {
     fn from(string: &str) -> EntityIdent {

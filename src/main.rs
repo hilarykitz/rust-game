@@ -4,6 +4,57 @@ use std::io;
 mod game;
 mod parser;
 
+use game::{Entity, Scene};
+use parser::{EntityIdent, Instruction};
+
+fn find_entity(scene: &mut Scene, ident: EntityIdent) -> Result<&mut Entity, String> {
+    match ident {
+        EntityIdent::NullEntity(ident) => Err(ident),
+        EntityIdent::Apple => Ok(&mut scene.entities[0]),
+        EntityIdent::Book => Ok(&mut scene.entities[1]),
+    }
+}
+
+fn do_instruction(scene: &mut Scene, instruction: Instruction) -> String {
+    match instruction {
+        Instruction::Exit => panic!("Can't perform exit instruction on scene"),
+        Instruction::Look => String::from("You look around and see an apple and a book."),
+        Instruction::Describe(ident) => match find_entity(scene, ident) {
+            Ok(entity) => match entity {
+                Entity::Apple(apple) => apple.describe(),
+                Entity::Book(book) => book.describe(),
+            },
+            Err(ident) => format!("You can't find a {}", ident),
+        },
+        Instruction::Consume(ident) => match find_entity(scene, ident) {
+            Ok(entity) => {
+                let result = match entity {
+                    Entity::Apple(apple) => apple.consume(),
+                    Entity::Book(_) => Err("It's not food."),
+                };
+                match result {
+                    Ok(response) => response,
+                    Err(error) => format!("{} You decide not to eat it.", error),
+                }
+            }
+            Err(ident) => format!("You can't find a {}.", ident),
+        },
+        Instruction::Read(ident) => match find_entity(scene, ident) {
+            Ok(entity) => {
+                let result = match entity {
+                    Entity::Book(book) => book.read(),
+                    Entity::Apple(_) => Err("There's nothing to read."),
+                };
+                match result {
+                    Ok(response) => response,
+                    Err(error) => format!("{} You leave it alone.", error),
+                }
+            }
+            Err(ident) => format!("You can't find a {}.", ident),
+        },
+    }
+}
+
 fn main() {
     let mut scene = game::Scene::new();
 
@@ -13,13 +64,13 @@ fn main() {
         if let Err(error) = io::stdin().read_line(&mut instruction) {
             dbg!(error);
         } else {
-            match game::Instruction::try_from(instruction) {
+            match parser::Instruction::try_from(instruction) {
                 Err(error) => println!("{}\n", error),
                 Ok(instruction) => {
-                    if instruction == game::Instruction::Exit {
+                    if instruction == parser::Instruction::Exit {
                         std::process::exit(0);
                     }
-                    println!("{}\n", scene.do_instruction(instruction));
+                    println!("{}\n", do_instruction(&mut scene, instruction));
                 }
             }
         }
