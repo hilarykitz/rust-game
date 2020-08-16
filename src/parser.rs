@@ -4,14 +4,14 @@ const PARSE_ERROR: Result<Instruction, &str> = Err("I don't understand");
 
 type EntityToken = String;
 
-#[derive(Debug, PartialEq)]
+#[derive(PartialEq)]
 pub enum EntityIdent {
     NullEntity,
     Apple,
     Book,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(PartialEq)]
 pub enum Instruction {
     Exit,
     Look,
