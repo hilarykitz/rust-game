@@ -1,10 +1,10 @@
 use std::convert::TryFrom;
 use std::io;
 
-mod game;
+mod scene;
 mod parser;
 
-use game::{Entity, Scene};
+use scene::{Entity, Scene};
 use parser::{EntityIdent, Instruction};
 
 fn find_entity(scene: &mut Scene, ident: EntityIdent) -> Option<&mut Entity> {
@@ -74,9 +74,9 @@ fn do_instruction(scene: &mut Scene, instruction: Instruction) -> String {
 }
 
 fn main() {
-    let mut scene = game::Scene::new(vec![
-        Entity::Apple(game::Apple::new()),
-        Entity::Book(game::Book::new(
+    let mut scene = scene::Scene::new(vec![
+        Entity::Apple(scene::Apple::new()),
+        Entity::Book(scene::Book::new(
             String::from("The Lusty Argonian Maid"),
             String::from("Crassius Curio"),
             String::from("[contents here]"),

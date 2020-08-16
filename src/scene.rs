@@ -1,3 +1,13 @@
+pub struct Scene {
+    pub entities: Vec<Entity>,
+}
+
+impl Scene {
+    pub fn new(entities: Vec<Entity>) -> Scene {
+        Scene { entities }
+    }
+}
+
 pub enum Entity {
     Apple(Apple),
     Book(Book),
@@ -67,15 +77,5 @@ impl Wrench {
 
     pub fn describe(&self) -> String {
         format!("It's a wrench.")
-    }
-}
-
-pub struct Scene {
-    pub entities: Vec<Entity>,
-}
-
-impl Scene {
-    pub fn new(entities: Vec<Entity>) -> Scene {
-        Scene { entities }
     }
 }
