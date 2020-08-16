@@ -1,6 +1,6 @@
 use std::convert::TryFrom;
 
-const PARSE_ERROR: Result<Instruction, &str> = Err("I don't understand");
+const PARSE_ERROR: Result<Instruction, &str> = Err("You look confused.");
 
 type EntityToken = String;
 
