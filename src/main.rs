@@ -11,23 +11,23 @@ fn find_entity(scene: &mut Scene, ident: EntityIdent) -> Result<&mut Entity, Ent
     match ident {
         EntityIdent::NullEntity(token) => Err(token),
         EntityIdent::Apple(token) => {
-            if let Some(apple) = scene
+            if let Some(entity) = scene
                 .entities
                 .iter_mut()
                 .find(|entity| matches!(entity, Entity::Apple(_)))
             {
-                Ok(apple)
+                Ok(entity)
             } else {
                 Err(token)
             }
         }
         EntityIdent::Book(token) => {
-            if let Some(book) = scene
+            if let Some(entity) = scene
                 .entities
                 .iter_mut()
                 .find(|entity| matches!(entity, Entity::Book(_)))
             {
-                Ok(book)
+                Ok(entity)
             } else {
                 Err(token)
             }
