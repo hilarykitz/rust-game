@@ -1,11 +1,11 @@
 use std::convert::TryFrom;
 use std::io;
 
-mod scene;
 mod parser;
+mod scene;
 
-use scene::{Entity, Scene};
 use parser::{EntityIdent, Instruction};
+use scene::{Entity, Scene};
 
 fn find_entity(scene: &mut Scene, ident: EntityIdent) -> Option<&mut Entity> {
     scene
