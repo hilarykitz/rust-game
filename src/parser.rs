@@ -58,17 +58,11 @@ fn parse_look(tokens: &[&str]) -> Result<Instruction, &'static str> {
     match tokens.len() {
         0 => Ok(Instruction::Look),
         2 if tokens[0] == "at" => Ok(Instruction::Describe(
-            match EntityIdent::try_from(tokens[1]) {
-                Ok(ident) => Some(ident),
-                Err(()) => None,
-            },
+            EntityIdent::try_from(tokens[1]).ok(),
             String::from(tokens[1]),
         )),
         3 if tokens[0] == "at" && tokens[1] == "the" => Ok(Instruction::Describe(
-            match EntityIdent::try_from(tokens[2]) {
-                Ok(ident) => Some(ident),
-                Err(()) => None,
-            },
+            EntityIdent::try_from(tokens[2]).ok(),
             String::from(tokens[2]),
         )),
         _ => PARSE_ERROR,
@@ -78,17 +72,11 @@ fn parse_look(tokens: &[&str]) -> Result<Instruction, &'static str> {
 fn parse_eat(tokens: &[&str]) -> Result<Instruction, &'static str> {
     match tokens.len() {
         1 => Ok(Instruction::Consume(
-            match EntityIdent::try_from(tokens[0]) {
-                Ok(ident) => Some(ident),
-                Err(()) => None,
-            },
+            EntityIdent::try_from(tokens[0]).ok(),
             String::from(tokens[0]),
         )),
         2 if tokens[0] == "the" => Ok(Instruction::Consume(
-            match EntityIdent::try_from(tokens[1]) {
-                Ok(ident) => Some(ident),
-                Err(()) => None,
-            },
+            EntityIdent::try_from(tokens[1]).ok(),
             String::from(tokens[1]),
         )),
         _ => PARSE_ERROR,
@@ -98,17 +86,11 @@ fn parse_eat(tokens: &[&str]) -> Result<Instruction, &'static str> {
 fn parse_read(tokens: &[&str]) -> Result<Instruction, &'static str> {
     match tokens.len() {
         1 => Ok(Instruction::Read(
-            match EntityIdent::try_from(tokens[0]) {
-                Ok(ident) => Some(ident),
-                Err(()) => None,
-            },
+            EntityIdent::try_from(tokens[0]).ok(),
             String::from(tokens[0]),
         )),
         2 if tokens[0] == "the" => Ok(Instruction::Read(
-            match EntityIdent::try_from(tokens[1]) {
-                Ok(ident) => Some(ident),
-                Err(()) => None,
-            },
+            EntityIdent::try_from(tokens[1]).ok(),
             String::from(tokens[1]),
         )),
         _ => PARSE_ERROR,
