@@ -76,7 +76,14 @@ fn do_instruction(scene: &mut Scene, instruction: Instruction) -> String {
 }
 
 fn main() {
-    let mut scene = game::Scene::new();
+    let mut scene = game::Scene::new(vec![
+        Entity::Apple(game::Apple::new()),
+        Entity::Book(game::Book::new(
+            String::from("The Lusty Argonian Maid"),
+            String::from("Crassius Curio"),
+            String::from("[contents here]"),
+        )),
+    ]);
 
     loop {
         let mut instruction = String::new();

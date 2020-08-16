@@ -8,7 +8,7 @@ pub struct Apple {
 }
 
 impl Apple {
-    fn new() -> Apple {
+    pub fn new() -> Apple {
         Apple { eaten: false }
     }
 
@@ -37,7 +37,7 @@ pub struct Book {
 }
 
 impl Book {
-    fn new(title: String, author: String, contents: String) -> Book {
+    pub fn new(title: String, author: String, contents: String) -> Book {
         Book {
             title,
             author,
@@ -62,16 +62,7 @@ pub struct Scene {
 }
 
 impl Scene {
-    pub fn new() -> Scene {
-        Scene {
-            entities: vec![
-                Entity::Apple(Apple::new()),
-                Entity::Book(Book::new(
-                    String::from("The Lusty Argonian Maid"),
-                    String::from("Crassius Curio"),
-                    String::from("[contents here]"),
-                )),
-            ],
-        }
+    pub fn new(entities: Vec<Entity>) -> Scene {
+        Scene { entities }
     }
 }
