@@ -37,7 +37,7 @@ fn find_entity(scene: &mut Scene, ident: EntityIdent) -> Result<&mut Entity, Str
 
 fn do_instruction(scene: &mut Scene, instruction: Instruction) -> String {
     match instruction {
-        Instruction::Exit => panic!("Can't perform exit instruction on scene"),
+        Instruction::Exit => panic!("Can't do exit instruction on scene"),
         Instruction::Look => String::from("You look around and see an apple and a book."),
         Instruction::Describe(ident) => match find_entity(scene, ident) {
             Ok(entity) => match entity {
