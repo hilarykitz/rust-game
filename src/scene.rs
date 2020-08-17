@@ -15,7 +15,7 @@ pub enum Entity {
 }
 
 pub struct Apple {
-    consumed: bool,
+    pub consumed: bool,
 }
 
 impl Apple {

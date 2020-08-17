@@ -7,6 +7,7 @@ type EntityToken = String;
 #[derive(PartialEq)]
 pub enum EntityIdent {
     Apple,
+    AppleCore,
     Book,
     Wrench,
 }
@@ -26,6 +27,7 @@ impl TryFrom<&str> for EntityIdent {
     fn try_from(string: &str) -> Result<EntityIdent, Self::Error> {
         match string {
             "apple" => Ok(EntityIdent::Apple),
+            "core" => Ok(EntityIdent::AppleCore),
             "book" => Ok(EntityIdent::Book),
             "wrench" => Ok(EntityIdent::Wrench),
             _ => Err(()),

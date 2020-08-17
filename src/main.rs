@@ -14,6 +14,8 @@ fn find_entity(scene: &mut Scene, ident: EntityIdent) -> Option<&mut Entity> {
         .find(|entity| match (&ident, entity) {
             (EntityIdent::Apple, Entity::Apple(_)) => true,
             (EntityIdent::Apple, _) => false,
+            (EntityIdent::AppleCore, Entity::Apple(apple)) if apple.consumed => true,
+            (EntityIdent::AppleCore, _) => false,
             (EntityIdent::Book, Entity::Book(_)) => true,
             (EntityIdent::Book, _) => false,
             (EntityIdent::Wrench, Entity::Wrench(_)) => true,
