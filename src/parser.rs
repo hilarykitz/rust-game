@@ -4,7 +4,7 @@ const PARSE_ERROR: Result<Instruction, &str> = Err("You look confused.");
 
 type EntityToken = String;
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum EntityIdent {
     Apple,
     AppleCore,
@@ -12,7 +12,7 @@ pub enum EntityIdent {
     Wrench,
 }
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum Instruction {
     Exit,
     Look,
